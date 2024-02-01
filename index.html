@@ -1,0 +1,123 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fake Twitter</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #e6ecf0; }
+  .header { background: #50b7f5; color: white; padding: 10px; text-align: center; }
+  .header h2 { margin: 0; }
+  .container { background: white; width: 350px; padding: 20px; margin: 20px auto; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  input[type="email"], input[type="password"], input[type="text"], select, input[type="date"], button {
+    width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box;
+  }
+  button { background: #50b7f5; color: white; border: none; cursor: pointer; }
+  button:hover { background: #4292c6; }
+  #profile { display: none; }
+  #welcome { display: none; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h2>TWITTER</h2>
+</div>
+
+
+<div class="container" id="register">
+  <h2>Register</h2>
+  <form id="registerForm">
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <input type="text" id="fullName" placeholder="Full Name" required>
+    <select id="country">
+      <option value="Kazakhstan">Kazakhstan</option>
+      <!-- Add more countries if needed -->
+    </select>
+    <input type="date" id="birthdate" required>
+    <button type="submit">Register</button>
+  </form>
+</div>
+
+<div class="container" id="login">
+  <h2>Login</h2>
+  <form id="loginForm">
+    <input type="email" id="loginEmail" placeholder="Email" required>
+    <input type="password" id="loginPassword" placeholder="Password" required>
+    <button type="submit">Sign In</button>
+  </form>
+</div>
+
+<div class="container" id="profile">
+  <h2 id="welcome">Welcome <span id="profileName">User</span></h2>
+  <p>Email: <span id="profileEmail"></span></p>
+  <p>Full Name: <span id="profileFullName"></span></p>
+  <p>Country: <span id="profileCountry"></span></p>
+  <p>Birthdate: <span id="profileBirthdate"></span></p>
+  <button id="logout">Logout</button>
+</div>
+
+
+<script>
+function switchView(view) {
+  document.getElementById('register').style.display = view === 'register' ? 'block' : 'none';
+  document.getElementById('login').style.display = view === 'login' ? 'block' : 'none';
+  document.getElementById('profile').style.display = view === 'profile' ? 'block' : 'none';
+}
+
+document.getElementById('registerForm').addEventListener('submit', function(event) {
+  event.preventDefault();
+  var email = document.getElementById('email').value;
+  var password = document.getElementById('password').value;
+  var fullName = document.getElementById('fullName').value;
+  var country = document.getElementById('country').value;
+  var birthdate = document.getElementById('birthdate').value;
+  var user = { password, fullName, country, birthdate };
+  localStorage.setItem(email, JSON.stringify(user));
+  switchView('login');
+});
+
+document.getElementById('loginForm').addEventListener('submit', function(event) {
+  event.preventDefault();
+  var email = document.getElementById('loginEmail').value;
+  var password = document.getElementById('loginPassword').value;
+  var user = JSON.parse(localStorage.getItem(email));
+  if(user && user.password === password) {
+    sessionStorage.setItem('currentUser', email);
+    loadProfile();
+  } else {
+    alert('Invalid email or password!');
+  }
+});
+
+function loadProfile() {
+  var currentUser = sessionStorage.getItem('currentUser');
+  var user = JSON.parse(localStorage.getItem(currentUser));
+  if(user) {
+    document.getElementById('profileName').textContent = user.fullName;
+    document.getElementById('profileEmail').textContent = currentUser;
+    document.getElementById('profileFullName').textContent = user.fullName;
+    document.getElementById('profileCountry').textContent = user.country;
+    document.getElementById('profileBirthdate').textContent = user.birthdate;
+    switchView('profile');
+  } else {
+    switchView('login');
+  }
+}
+
+document.getElementById('logout').addEventListener('click', function() {
+  sessionStorage.removeItem('currentUser');
+  switchView('login');
+});
+
+window.onload = function() {
+  if(sessionStorage.getItem('currentUser')) {
+    loadProfile();
+  } else {
+    switchView('register');
+  }
+};
+</script>
+</body>
+</html>
